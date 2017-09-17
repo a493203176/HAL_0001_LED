@@ -3,6 +3,14 @@
 #include <stdio.h>
 #include <malloc.h>
 
+#include <android/log.h>
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+
+
 #if 0
 typedef struct {
     char *name;          /* Java中函?的名字 */
@@ -11,18 +19,33 @@ typedef struct {
 } JNINativeMethod;
 #endif
 
+static int fd;
+
 jint ledOpen(JNIEnv * env, jobject cls) 
 {
-	return  0;
+	fd = open("/dev/leds",O_RDWR);
+	
+	__android_log_print(ANDROID_LOG_DEBUG, "LEDemo", "native ledOpen fd = %d",fd);
+
+	if (fd >= 0)
+		return 0;
+	else
+		return -1;
 }
 
 void ledClose(JNIEnv * env, jobject cls) 
 {
+	__android_log_print(ANDROID_LOG_DEBUG, "LEDemo", "native ledClose ...");
 
+	close(fd);
 }
 
 jint ledCtrl(JNIEnv * env, jobject cls, jint which, jint status) 
 {
+	int ret = ioctl(fd,status,which);
+
+	__android_log_print(ANDROID_LOG_DEBUG, "LEDemo", "native ledCtrl which: %d, status : %d,ret = %d",which,status,ret);
+
 
 	return	0;
 
